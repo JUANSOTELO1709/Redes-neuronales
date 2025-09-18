@@ -25,79 +25,66 @@ class VoiceRecognitionApp:
         self.update_microphone_list()
         
     def setup_ui(self):
-        # Colores y estilos modernos
-        main_bg = "#23272f"
-        accent = "#00b894"
-        text_color = "#f5f6fa"
-        card_bg = "#353b48"
-        btn_bg = "#00b894"
-        btn_fg = "#23272f"
-        border_radius = 15
-
-        style = ttk.Style()
-        style.theme_use('clam')
-        style.configure('TFrame', background=main_bg)
-        style.configure('TLabel', background=main_bg, foreground=text_color, font=("Segoe UI", 11))
-        style.configure('Title.TLabel', font=("Segoe UI", 22, "bold"), foreground=accent, background=main_bg)
-        style.configure('Card.TFrame', background=card_bg, relief="flat")
-        style.configure('TButton', font=("Segoe UI", 12, "bold"), background=btn_bg, foreground=btn_fg, borderwidth=0, focusthickness=3, focuscolor=accent)
-        style.map('TButton', background=[('active', accent)], foreground=[('active', text_color)])
-        style.configure('TCombobox', fieldbackground=card_bg, background=card_bg, foreground=text_color, font=("Segoe UI", 11))
-
-        # Frame principal tipo "card"
-        main_frame = ttk.Frame(self.root, padding=30, style='Card.TFrame')
+        # Frame principal
+        main_frame = ttk.Frame(self.root, padding="20")
         main_frame.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
+        
+        # Configurar grid
         self.root.columnconfigure(0, weight=1)
         self.root.rowconfigure(0, weight=1)
         main_frame.columnconfigure(1, weight=1)
-
+        
         # Título
-        title_label = ttk.Label(main_frame, text="🎤 Reconocimiento de Voz", style='Title.TLabel')
-        title_label.grid(row=0, column=0, columnspan=4, pady=(0, 25))
-
+        title_label = ttk.Label(main_frame, text="🎤 Reconocimiento de Voz", 
+                               font=("Arial", 18, "bold"), foreground="#3498db")
+        title_label.grid(row=0, column=0, columnspan=3, pady=(0, 20))
+        
         # Selección de micrófono
-        mic_label = ttk.Label(main_frame, text="Micrófono:")
-        mic_label.grid(row=1, column=0, sticky=tk.W, pady=5)
+        ttk.Label(main_frame, text="Micrófono:", font=("Arial", 10)).grid(row=1, column=0, sticky=tk.W, pady=5)
         self.mic_var = tk.StringVar()
-        self.mic_combo = ttk.Combobox(main_frame, textvariable=self.mic_var, state="readonly", width=30)
+        self.mic_combo = ttk.Combobox(main_frame, textvariable=self.mic_var, state="readonly")
         self.mic_combo.grid(row=1, column=1, sticky=(tk.W, tk.E), pady=5, padx=(10, 0))
+        
+        # Botón para actualizar micrófonos
         refresh_btn = ttk.Button(main_frame, text="🔄", width=3, command=self.update_microphone_list)
         refresh_btn.grid(row=1, column=2, padx=(10, 0))
-
+        
         # Estado del micrófono
-        self.mic_status = ttk.Label(main_frame, text="Estado: No configurado", foreground=accent, font=("Segoe UI", 10, "bold"))
-        self.mic_status.grid(row=2, column=0, columnspan=4, sticky=tk.W, pady=(0, 20))
-
+        self.mic_status = ttk.Label(main_frame, text="Estado: No configurado", foreground="red")
+        self.mic_status.grid(row=2, column=0, columnspan=3, sticky=tk.W, pady=(0, 20))
+        
         # Botón de inicio/parada
-        self.toggle_btn = ttk.Button(main_frame, text="🎤 Iniciar Escucha", command=self.toggle_listening, width=25)
-        self.toggle_btn.grid(row=3, column=0, columnspan=4, pady=15)
-
-        # Indicador de escucha (círculo animado)
-        self.status_canvas = tk.Canvas(main_frame, width=110, height=110, bg=main_bg, highlightthickness=0, bd=0)
-        self.status_canvas.grid(row=4, column=0, columnspan=4, pady=10)
-        self.indicator = self.status_canvas.create_oval(15, 15, 95, 95, fill="red", outline=accent, width=4)
-        self.status_text = self.status_canvas.create_text(55, 55, text="Inactivo", fill=text_color, font=("Segoe UI", 12, "bold"))
-
+        self.toggle_btn = ttk.Button(main_frame, text="🎤 Iniciar Escucha", 
+                                    command=self.toggle_listening, width=20)
+        self.toggle_btn.grid(row=3, column=0, columnspan=3, pady=10)
+        
+        # Indicador de escucha
+        self.status_canvas = tk.Canvas(main_frame, width=100, height=100, bg="#2c3e50", highlightthickness=0)
+        self.status_canvas.grid(row=4, column=0, columnspan=3, pady=20)
+        self.indicator = self.status_canvas.create_oval(20, 20, 80, 80, fill="red")
+        self.status_text = self.status_canvas.create_text(50, 50, text="Inactivo", fill="white", font=("Arial", 10))
+        
         # Área de texto para mostrar resultados
-        result_label = ttk.Label(main_frame, text="Comando reconocido:", font=("Segoe UI", 12, "bold"))
-        result_label.grid(row=5, column=0, sticky=tk.W, pady=(20, 5))
-        self.result_text = tk.Text(main_frame, height=3, width=55, font=("Segoe UI", 13), bg=card_bg, fg=accent, relief=tk.FLAT, bd=2, wrap=tk.WORD)
-        self.result_text.grid(row=6, column=0, columnspan=4, sticky=(tk.W, tk.E), pady=(0, 20), padx=(0, 0))
-        self.result_text.configure(highlightbackground=accent, highlightcolor=accent, highlightthickness=2)
-
+        ttk.Label(main_frame, text="Comando reconocido:", font=("Arial", 10)).grid(row=5, column=0, sticky=tk.W, pady=(20, 5))
+        
+        self.result_text = tk.Text(main_frame, height=4, width=50, font=("Arial", 11), 
+                                  bg="#34495e", fg="white", relief=tk.FLAT)
+        self.result_text.grid(row=6, column=0, columnspan=3, sticky=(tk.W, tk.E), pady=(0, 20))
+        
         # Historial de comandos
-        history_label = ttk.Label(main_frame, text="Historial de comandos:", font=("Segoe UI", 12, "bold"))
-        history_label.grid(row=7, column=0, sticky=tk.W, pady=(10, 5))
-        self.history_listbox = tk.Listbox(main_frame, height=8, font=("Segoe UI", 11), bg=card_bg, fg=text_color, relief=tk.FLAT, bd=2, highlightthickness=2, highlightbackground=accent, selectbackground=accent, selectforeground=main_bg)
+        ttk.Label(main_frame, text="Historial de comandos:", font=("Arial", 10)).grid(row=7, column=0, sticky=tk.W, pady=(10, 5))
+        
+        self.history_listbox = tk.Listbox(main_frame, height=8, font=("Arial", 10), 
+                                         bg="#34495e", fg="white", relief=tk.FLAT)
         self.history_listbox.grid(row=8, column=0, columnspan=3, sticky=(tk.W, tk.E, tk.N, tk.S), pady=(0, 20))
+        
+        # Barra de desplazamiento para el historial
         scrollbar = ttk.Scrollbar(main_frame, orient=tk.VERTICAL, command=self.history_listbox.yview)
         scrollbar.grid(row=8, column=3, sticky=(tk.N, tk.S), pady=(0, 20))
         self.history_listbox.configure(yscrollcommand=scrollbar.set)
+        
+        # Configurar pesos para expandir
         main_frame.rowconfigure(8, weight=1)
-
-        # Mejorar bordes de ventana
-        self.root.update_idletasks()
-        self.root.configure(bg=main_bg)
         
     def update_microphone_list(self):
         """Actualiza la lista de micrófonos disponibles"""
@@ -144,41 +131,41 @@ class VoiceRecognitionApp:
     def listen_loop(self):
         """Bucle principal de escucha"""
         mic_index = self.mic_combo.current()
-        print(f"[DEBUG] Usando micrófono índice: {mic_index}")
+        
         with sr.Microphone(device_index=mic_index) as source:
-            print("[DEBUG] Ajustando para el ruido ambiental...")
             self.recognizer.adjust_for_ambient_noise(source, duration=1)
-            print("[DEBUG] Comenzando bucle de escucha...")
+            
             while self.listening:
                 try:
-                    print("[DEBUG] Esperando audio...")
                     # Actualizar UI desde el hilo principal
                     self.root.after(0, lambda: self.status_canvas.itemconfig(self.indicator, fill="yellow"))
                     self.root.after(0, lambda: self.status_canvas.itemconfig(self.status_text, text="Escuchando..."))
+                    
                     # Escuchar audio
                     audio = self.recognizer.listen(source, timeout=3, phrase_time_limit=5)
-                    print("[DEBUG] Audio recibido, procesando...")
+                    
                     # Reconocer
                     self.root.after(0, lambda: self.status_canvas.itemconfig(self.indicator, fill="blue"))
                     self.root.after(0, lambda: self.status_canvas.itemconfig(self.status_text, text="Procesando..."))
+                    
                     text = self.recognizer.recognize_google(audio, language='es-ES')
-                    print(f"[DEBUG] Texto reconocido: {text}")
+                    
                     # Procesar resultado
                     self.root.after(0, lambda t=text: self.process_result(t))
+                    
                     # Pequeña pausa antes de escuchar de nuevo
                     time.sleep(1)
+                    
                 except sr.WaitTimeoutError:
-                    print("[DEBUG] Tiempo de espera agotado, no se detectó audio.")
+                    # Timeout es normal, continuar escuchando
                     continue
                 except sr.UnknownValueError:
-                    print("[DEBUG] No se pudo entender el audio.")
                     self.root.after(0, self.show_not_understood)
                 except sr.RequestError as e:
-                    print(f"[DEBUG] Error del servicio: {e}")
                     self.root.after(0, lambda: self.show_error(f"Error del servicio: {e}"))
                 except Exception as e:
-                    print(f"[DEBUG] Error inesperado: {e}")
                     self.root.after(0, lambda: self.show_error(f"Error inesperado: {e}"))
+                
                 # Restaurar estado de escucha
                 if self.listening:
                     self.root.after(0, lambda: self.status_canvas.itemconfig(self.indicator, fill="green"))
