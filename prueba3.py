@@ -279,7 +279,7 @@ class VoiceRecognitionApp:
             "reducir frecuencia": "FREQ_DOWN", 
             "bajar frecuencia": "FREQ_DOWN",
             "frecuencia rápida": "FREQ_FAST",
-            "frecuencia lenta": "FREQ_SLOW"
+            "frecuencia lenta": "FREQ_SLOWS"
         }
         
         # Buscar comando coincidente
