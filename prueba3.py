@@ -254,6 +254,7 @@ class VoiceRecognitionApp:
                 except sr.WaitTimeoutError:
                     continue
                 except sr.UnknownValueError:
+                    
                     self.log_diagnostic("No se entendió el audio")
                 except Exception as e:
                     self.log_diagnostic(f"Error en reconocimiento: {e}")
